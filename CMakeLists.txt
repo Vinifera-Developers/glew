@@ -32,14 +32,14 @@ option (GLEW_X11 "X11 mode" ON)
 option (GLEW_EGL "EGL mode" OFF)
 option (BUILD_SHARED_LIBS "install/link shared instead of static libs" ON)
 
-set (GLEW_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+set(GLEW_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 
 # get version from config/version
-file (STRINGS ${GLEW_DIR}/config/version  _VERSION_MAJOR_STRING REGEX "GLEW_MAJOR[ ]*=[ ]*[0-9]+.*")
+file (STRINGS ${GLEW_SOURCE_DIR}/config/version  _VERSION_MAJOR_STRING REGEX "GLEW_MAJOR[ ]*=[ ]*[0-9]+.*")
 string (REGEX REPLACE "GLEW_MAJOR[ ]*=[ ]*([0-9]+)" "\\1" CPACK_PACKAGE_VERSION_MAJOR ${_VERSION_MAJOR_STRING})
-file (STRINGS ${GLEW_DIR}/config/version  _VERSION_MINOR_STRING REGEX "GLEW_MINOR[ ]*=[ ]*[0-9]+.*")
+file (STRINGS ${GLEW_SOURCE_DIR}/config/version  _VERSION_MINOR_STRING REGEX "GLEW_MINOR[ ]*=[ ]*[0-9]+.*")
 string (REGEX REPLACE "GLEW_MINOR[ ]*=[ ]*([0-9]+)" "\\1" CPACK_PACKAGE_VERSION_MINOR ${_VERSION_MINOR_STRING})
-file (STRINGS ${GLEW_DIR}/config/version  _VERSION_PATCH_STRING REGEX "GLEW_MICRO[ ]*=[ ]*[0-9]+.*")
+file (STRINGS ${GLEW_SOURCE_DIR}/config/version  _VERSION_PATCH_STRING REGEX "GLEW_MICRO[ ]*=[ ]*[0-9]+.*")
 string (REGEX REPLACE "GLEW_MICRO[ ]*=[ ]*([0-9]+)" "\\1" CPACK_PACKAGE_VERSION_PATCH ${_VERSION_PATCH_STRING})
 set (GLEW_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
 
@@ -118,18 +118,18 @@ endif ()
 
 #### GLEW ####
 
-include_directories (${GLEW_DIR}/include ${X11_INCLUDE_DIR})
+include_directories (${GLEW_SOURCE_DIR}/include ${X11_INCLUDE_DIR})
 
 set (GLEW_PUBLIC_HEADERS_FILES
-  ${GLEW_DIR}/include/GL/wglew.h
-  ${GLEW_DIR}/include/GL/glew.h
-  ${GLEW_DIR}/include/GL/glxew.h
-  ${GLEW_DIR}/include/GL/eglew.h
+  ${GLEW_SOURCE_DIR}/include/GL/wglew.h
+  ${GLEW_SOURCE_DIR}/include/GL/glew.h
+  ${GLEW_SOURCE_DIR}/include/GL/glxew.h
+  ${GLEW_SOURCE_DIR}/include/GL/eglew.h
 )
-set (GLEW_SRC_FILES ${GLEW_DIR}/src/glew.c)
+set (GLEW_SRC_FILES ${GLEW_SOURCE_DIR}/src/glew.c)
 
 if (WIN32)
-  list (APPEND GLEW_SRC_FILES ${GLEW_DIR}/build/glew.rc)
+  list (APPEND GLEW_SRC_FILES ${GLEW_SOURCE_DIR}/build/glew.rc)
 endif ()
 
 add_library (glew SHARED ${GLEW_PUBLIC_HEADERS_FILES} ${GLEW_SRC_FILES})
@@ -202,9 +202,9 @@ install ( TARGETS ${targets_to_install}
 )
 
 if (BUILD_UTILS)
-  set (GLEWINFO_SRC_FILES ${GLEW_DIR}/src/glewinfo.c)
+  set (GLEWINFO_SRC_FILES ${GLEW_SOURCE_DIR}/src/glewinfo.c)
   if (WIN32)
-    list (APPEND GLEWINFO_SRC_FILES ${GLEW_DIR}/build/glewinfo.rc)
+    list (APPEND GLEWINFO_SRC_FILES ${GLEW_SOURCE_DIR}/build/glewinfo.rc)
   endif ()
   add_executable (glewinfo ${GLEWINFO_SRC_FILES})
   if(BUILD_SHARED_LIBS)
@@ -216,9 +216,9 @@ if (BUILD_UTILS)
     target_link_libraries(glewinfo ${X11_LIBRARIES})
   endif ()
 
-  set (VISUALINFO_SRC_FILES ${GLEW_DIR}/src/visualinfo.c)
+  set (VISUALINFO_SRC_FILES ${GLEW_SOURCE_DIR}/src/visualinfo.c)
   if (WIN32)
-    list (APPEND VISUALINFO_SRC_FILES ${GLEW_DIR}/build/visualinfo.rc)
+    list (APPEND VISUALINFO_SRC_FILES ${GLEW_SOURCE_DIR}/build/visualinfo.rc)
   endif ()
   add_executable (visualinfo ${VISUALINFO_SRC_FILES})
   if(BUILD_SHARED_LIBS)
@@ -248,7 +248,7 @@ if (APPLE)
   set (requireslib)
 endif ()
 
-configure_file (${GLEW_DIR}/glew.pc.in ${CMAKE_CURRENT_BINARY_DIR}/glew.pc @ONLY)
+configure_file (${GLEW_SOURCE_DIR}/glew.pc.in ${CMAKE_CURRENT_BINARY_DIR}/glew.pc @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/glew.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
@@ -270,18 +270,18 @@ if(MAYBE_EXPORT)
   install(EXPORT glew-targets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/glew
     NAMESPACE GLEW::)
   install(FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/glew-config.cmake
-      ${CMAKE_CURRENT_SOURCE_DIR}/CopyImportedTargetProperties.cmake
+      ${GLEW_SOURCE_DIR}/build/cmake/glew-config.cmake
+      ${GLEW_SOURCE_DIR}/CopyImportedTargetProperties.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/glew)
 endif()
 
 if(NOT TARGET uninstall)
   configure_file(
-      ${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in
+      ${GLEW_SOURCE_DIR}/build/cmake/cmake_uninstall.cmake.in
       ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake
       IMMEDIATE @ONLY)
 
   add_custom_target(uninstall
       COMMAND ${CMAKE_COMMAND} -P
-      ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+      ${CMAKE_CURRENT_BINARY_DIR}/build/cmake/cmake_uninstall.cmake)
 endif()
